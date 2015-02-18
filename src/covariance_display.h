@@ -35,7 +35,10 @@ protected:
   virtual void reset();
 
 private Q_SLOTS:
-  void updateColorAndAlphaAndScale();
+  void updateColorAndAlpha();
+  void updateScale();
+  void updateShowAxis();
+  void updateUse6DOF();
 
 private:
   void processMessage(const geometry_msgs::PoseWithCovarianceStampedConstPtr& msg);
@@ -45,6 +48,9 @@ private:
   rviz::ColorProperty* color_property_;
   rviz::FloatProperty* alpha_property_;
   rviz::FloatProperty* scale_property_;
+
+  rviz::BoolProperty* show_axis_property_;
+  rviz::BoolProperty* use_6dof_property_;
 };
 
 } // end namespace rviz_plugin_covariance

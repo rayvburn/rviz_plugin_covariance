@@ -43,6 +43,16 @@ public:
     scaleFactor_ = scale;
   }
 
+  void setShowAxis(bool show_axis)
+  {
+    show_axis_ = show_axis;
+  }
+
+  void setUse6DOF(bool use_6dof)
+  {
+    use_6dof_ = use_6dof;
+  }
+
 private:
   boost::shared_ptr<rviz::Axes> axes_;
   boost::shared_ptr<rviz::Shape> shape_;
@@ -53,7 +63,10 @@ private:
   Ogre::SceneNode* orientationNode_;
 
   Ogre::SceneManager* scene_manager_;
+
   float scaleFactor_;
+  bool show_axis_;
+  bool use_6dof_;
 };
 
 } // end namespace rviz_plugin_covariance

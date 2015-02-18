@@ -11,6 +11,19 @@
 
 #include "covariance_visual.h"
 
+template<typename Derived>
+inline bool isfinite(const Eigen::MatrixBase<Derived>& x)
+{
+  return ( (x - x).array() == (x - x).array()).all();
+}
+
+
+template<typename Derived>
+inline bool isnan(const Eigen::MatrixBase<Derived>& x)
+{
+  return !((x.array() == x.array())).all();
+}
+
 std::pair<Eigen::Matrix3d, Eigen::Vector3d> computeEigenValuesAndVectors(const geometry_msgs::PoseWithCovariance& msg,  unsigned offset)
 {
   Eigen::Matrix3d covariance   = Eigen::Matrix3d::Zero();
@@ -66,18 +79,18 @@ CovarianceVisual::CovarianceVisual(Ogre::SceneManager* scene_manager, Ogre::Scen
 {
   axes_.reset(new rviz::Axes(scene_manager_, frame_node_));
 
-  positionNode_    = axes_->getSceneNode ()->createChildSceneNode();
-  orientationNode_ = axes_->getSceneNode ()->createChildSceneNode();
+  positionNode_    = axes_->getSceneNode()->createChildSceneNode();
+  orientationNode_ = axes_->getSceneNode()->createChildSceneNode();
 
   shape_.reset(new rviz::Shape(rviz::Shape::Sphere, scene_manager_, positionNode_));
   orientationShape_.reset(new rviz::Shape(rviz::Shape::Cone, scene_manager_, orientationNode_));
 }
 
-CovarianceVisual::~CovarianceVisual ()
+CovarianceVisual::~CovarianceVisual()
 {
   scene_manager_->destroySceneNode(orientationNode_);
   scene_manager_->destroySceneNode(positionNode_);
-  scene_manager_->destroySceneNode (frame_node_);
+  scene_manager_->destroySceneNode(frame_node_);
 }
 
 void CovarianceVisual::setMessage(const geometry_msgs::PoseWithCovariance& msg)
@@ -88,112 +101,201 @@ void CovarianceVisual::setMessage(const geometry_msgs::PoseWithCovariance& msg)
   Ogre::Quaternion orientation(msg.pose.orientation.w, msg.pose.orientation.x, msg.pose.orientation.y, msg.pose.orientation.z);
 
   // Set position and orientation for axes scene node.
-  if (!position.isNaN())
+  if (show_axis_)
   {
-    axes_->setPosition(position);
-  }
-  else
-  {
-    ROS_WARN_STREAM_THROTTLE(1, "Position contains NaN: " << position);
-  }
-
-  if (!orientation.isNaN())
-  {
-    axes_->setOrientation(orientation);
-  }
-  else
-  {
-    ROS_WARN_STREAM_THROTTLE(1, "Orientation contains NaN: " << orientation);
-  }
-
-  // Check for NaN in covariance
-  for (size_t i = 0; i < 3; ++i)
-  {
-    if (isnan(msg.covariance[i]))
+    if (!position.isNaN())
     {
-      ROS_WARN_THROTTLE(1, "Covariance contains NaN");
-      return;
+      axes_->setPosition(position);
+    }
+    else
+    {
+      ROS_WARN_STREAM_THROTTLE(1, "Position contains NaN: " << position);
+    }
+
+    if (!orientation.isNaN())
+    {
+      axes_->setOrientation(orientation);
+    }
+    else
+    {
+      ROS_WARN_STREAM_THROTTLE(1, "Orientation contains NaN: " << orientation);
     }
   }
 
-  // Compute eigen values and vectors for both shapes.
-  std::pair<Eigen::Matrix3d, Eigen::Vector3d> positionEigenVectorsAndValues(computeEigenValuesAndVectors(msg, 0));
-  std::pair<Eigen::Matrix3d, Eigen::Vector3d> orientationEigenVectorsAndValues(computeEigenValuesAndVectors(msg, 3));
-
-  Ogre::Quaternion positionQuaternion(computeRotation(msg, positionEigenVectorsAndValues));
-  Ogre::Quaternion orientationQuaternion(computeRotation(msg, orientationEigenVectorsAndValues));
-
-  positionNode_->setOrientation(positionQuaternion);
-  orientationNode_->setOrientation(orientationQuaternion);
-
-  // Compute scaling.
-  Ogre::Vector3 positionScaling(
-      std::sqrt(positionEigenVectorsAndValues.second[0]),
-      std::sqrt(positionEigenVectorsAndValues.second[1]),
-      std::sqrt(positionEigenVectorsAndValues.second[2]));
-  positionScaling *= scaleFactor_;
-
-  Ogre::Vector3 orientationScaling(
-      std::sqrt(orientationEigenVectorsAndValues.second[0]),
-      std::sqrt(orientationEigenVectorsAndValues.second[1]),
-      std::sqrt(orientationEigenVectorsAndValues.second[2]));
-  orientationScaling *= scaleFactor_;
-
-  // Set the scaling.
-  if (!positionScaling.isNaN())
+  if (use_6dof_)
   {
-    positionNode_->setScale(positionScaling);
-  }
-  else
-  {
-    ROS_WARN_STREAM_THROTTLE(1, "PositionScaling contains NaN: " << positionScaling);
-  }
+    // Check for NaN in covariance
+    for (size_t i = 0; i < 3; ++i)
+    {
+      if (isnan(msg.covariance[i]))
+      {
+        ROS_WARN_THROTTLE(1, "Covariance contains NaN");
+        return;
+      }
+    }
 
-  if (!orientationScaling.isNaN())
-  {
-    orientationNode_->setScale(orientationScaling);
-  }
-  else
-  {
-    ROS_WARN_STREAM_THROTTLE(1, "OrientationScaling contains NaN: " << orientationScaling);
-  }
+    // Compute eigen values and vectors for both shapes.
+    std::pair<Eigen::Matrix3d, Eigen::Vector3d> positionEigenVectorsAndValues(computeEigenValuesAndVectors(msg, 0));
+    std::pair<Eigen::Matrix3d, Eigen::Vector3d> orientationEigenVectorsAndValues(computeEigenValuesAndVectors(msg, 3));
 
-  // Debugging.
-  ROS_DEBUG_STREAM_THROTTLE(1,
-     "Position:\n"
-     << position << "\n"
-     << "Positional part 3x3 eigen values:\n"
-     << positionEigenVectorsAndValues.second << "\n"
-     << "Positional part 3x3 eigen vectors:\n"
-     << positionEigenVectorsAndValues.first << "\n"
-     << "Sphere orientation:\n"
-     << positionQuaternion << "\n"
-     << positionQuaternion.getRoll() << " "
-     << positionQuaternion.getPitch() << " "
-     << positionQuaternion.getYaw() << "\n"
-     << "Sphere scaling:\n"
-     << positionScaling << "\n"
-     << "Rotational part 3x3 eigen values:\n"
-     << orientationEigenVectorsAndValues.second << "\n"
-     << "Rotational part 3x3 eigen vectors:\n"
-     << orientationEigenVectorsAndValues.first << "\n"
-     << "Cone orientation:\n"
-     << orientationQuaternion << "\n"
-     << orientationQuaternion.getRoll() << " "
-     << orientationQuaternion.getPitch() << " "
-     << orientationQuaternion.getYaw() << "\n"
-     << "Cone scaling:\n"
-     << orientationScaling);
+    Ogre::Quaternion positionQuaternion(computeRotation(msg, positionEigenVectorsAndValues));
+    Ogre::Quaternion orientationQuaternion(computeRotation(msg, orientationEigenVectorsAndValues));
+
+    positionNode_->setOrientation(positionQuaternion);
+    orientationNode_->setOrientation(orientationQuaternion);
+
+    // Compute scaling.
+    Ogre::Vector3 positionScaling(
+        std::sqrt(positionEigenVectorsAndValues.second[0]),
+        std::sqrt(positionEigenVectorsAndValues.second[1]),
+        std::sqrt(positionEigenVectorsAndValues.second[2]));
+    positionScaling *= scaleFactor_;
+
+    Ogre::Vector3 orientationScaling(
+        std::sqrt(orientationEigenVectorsAndValues.second[0]),
+        std::sqrt(orientationEigenVectorsAndValues.second[1]),
+        std::sqrt(orientationEigenVectorsAndValues.second[2]));
+    orientationScaling *= scaleFactor_;
+
+    // Set the scaling.
+    if (!positionScaling.isNaN())
+    {
+      positionNode_->setScale(positionScaling);
+    }
+    else
+    {
+      ROS_WARN_STREAM_THROTTLE(1, "PositionScaling contains NaN: " << positionScaling);
+    }
+
+    if (!orientationScaling.isNaN())
+    {
+      orientationNode_->setScale(orientationScaling);
+    }
+    else
+    {
+      ROS_WARN_STREAM_THROTTLE(1, "OrientationScaling contains NaN: " << orientationScaling);
+    }
+
+    // Debugging.
+    ROS_DEBUG_STREAM_THROTTLE(1,
+       "Position:\n"
+       << position << "\n"
+       << "Positional part 3x3 eigen values:\n"
+       << positionEigenVectorsAndValues.second << "\n"
+       << "Positional part 3x3 eigen vectors:\n"
+       << positionEigenVectorsAndValues.first << "\n"
+       << "Sphere orientation:\n"
+       << positionQuaternion << "\n"
+       << positionQuaternion.getYaw() << "\n"
+       << "Sphere scaling:\n"
+       << positionScaling << "\n"
+       << "Rotational part 3x3 eigen values:\n"
+       << orientationEigenVectorsAndValues.second << "\n"
+       << "Rotational part 3x3 eigen vectors:\n"
+       << orientationEigenVectorsAndValues.first << "\n"
+       << "Cone orientation:\n"
+       << orientationQuaternion << "\n"
+       << orientationQuaternion.getRoll() << " "
+       << orientationQuaternion.getPitch() << " "
+       << orientationQuaternion.getYaw() << "\n"
+       << "Cone scaling:\n"
+       << orientationScaling);
+  }
+  else // 3DOF
+  {
+    // Take (x, y, th) part from the covariance matrix:
+    //   x y z R P Y
+    // x * *       x
+    // y * *       x
+    // z
+    // R
+    // P
+    // Y x x       *
+    //
+    // Actually, we only take the elements marked with '*', although we could
+    // also take a 3x3 matrix with the '*' and 'x' elements.
+    Eigen::Matrix2d cov_xy; cov_xy << msg.covariance[0], msg.covariance[1],
+                                      msg.covariance[6], msg.covariance[7];
+    const double cov_yaw = msg.covariance[35];
+
+    // Check for NaN in covariance
+    if (isnan(cov_xy) || isnan(cov_yaw))
+    {
+      ROS_WARN_STREAM_THROTTLE(1, "Covariance contains NaN: " <<
+          "C_xy = " << cov_xy << ", C_yaw = " << cov_yaw);
+      return;
+    }
+
+    // Compute eigen values and vectors for xy
+    Eigen::SelfAdjointEigenSolver<Eigen::Matrix2d> eig(cov_xy);
+
+    const Eigen::Vector2d& eig_values(eig.eigenvalues());
+    const Eigen::Matrix2d& eig_vectors(eig.eigenvectors());
+
+    // Compute ellipsoid angle, and axes
+    const double yaw = atan2(eig_vectors(1, 0), eig_vectors(0, 0));
+    const double axis_major = sqrt(eig_values[0]);
+    const double axis_minor = sqrt(eig_values[1]);
+    const double axis_yaw   = 2.0 * sqrt(cov_yaw);
+
+    // Compute the ellipsoid orientation
+    Ogre::Quaternion positionQuaternion;
+    Ogre::Matrix3 R;
+    R.FromEulerAnglesYXZ(Ogre::Radian(0.0), Ogre::Radian(0.0), Ogre::Radian(yaw));
+    positionQuaternion.FromRotationMatrix(R);
+
+    // Set the orientation
+    positionNode_->setOrientation(positionQuaternion);
+
+    // Compute the ellipsoid scale
+    Ogre::Vector3 positionScaling(
+        std::isnormal(axis_major) ? axis_major : 0.001,
+        std::isnormal(axis_minor) ? axis_minor : 0.001,
+        std::isnormal(axis_yaw  ) ? axis_yaw   : 0.001);
+    positionScaling *= scaleFactor_;
+
+    // Set the scaling
+    if (!positionScaling.isNaN())
+    {
+      positionNode_->setScale(positionScaling);
+    }
+    else
+    {
+      ROS_WARN_STREAM_THROTTLE(1, "PositionScaling contains NaN: " << positionScaling);
+    }
+
+    // Debugging
+    ROS_DEBUG_STREAM_THROTTLE(1,
+       "Position:\n"
+       << position << "\n"
+       << "C_xy:\n"
+       << cov_xy << "\n"
+       << "C_yaw:\n"
+       << cov_yaw << "\n"
+       << "axis (major, minor, yaw): (" << axis_major << ", " << axis_minor << ", " << axis_yaw << ")\n"
+       << "yaw: " << yaw << "\n"
+       << "Positional part 2x2 eigen values:\n"
+       << eig_values << "\n"
+       << "Positional part 2x2 eigen vectors:\n"
+       << eig_vectors << "\n"
+       << "Sphere orientation:\n"
+       << positionQuaternion << "\n"
+       << positionQuaternion.getRoll() << " "
+       << positionQuaternion.getPitch() << " "
+       << positionQuaternion.getYaw() << "\n"
+       << "Sphere scaling:\n"
+       << positionScaling);
+  }
 }
 
 void CovarianceVisual::setMessage(const geometry_msgs::PoseWithCovarianceStampedConstPtr& msg)
 {
-  setMessage (msg->pose);
+  setMessage(msg->pose);
 }
 
 void CovarianceVisual::setMessage(const nav_msgs::OdometryConstPtr& msg)
 {
-  setMessage (msg->pose);
+  setMessage(msg->pose);
 }
 
 void CovarianceVisual::setFramePosition(const Ogre::Vector3& position)

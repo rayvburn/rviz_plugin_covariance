@@ -21,15 +21,23 @@ OdometryDisplay::OdometryDisplay()
 {
   color_property_ = new rviz::ColorProperty( "Color", QColor( 204, 51, 204),
                                              "Color to draw the ellipsoid.",
-                                             this, SLOT( updateColorAndAlphaAndScale() ));
+                                             this, SLOT( updateColorAndAlpha() ));
 
   alpha_property_ = new rviz::FloatProperty( "Alpha", 1.0,
                                              "0 is fully transparent, 1.0 is fully opaque.",
-                                             this, SLOT( updateColorAndAlphaAndScale() ));
+                                             this, SLOT( updateColorAndAlpha() ));
 
   scale_property_ = new rviz::FloatProperty( "Scale", 1.0,
                                              "Ellipsoid scale factor.",
-                                             this, SLOT( updateColorAndAlphaAndScale() ));
+                                             this, SLOT( updateScale() ));
+
+  show_axis_property_ = new rviz::BoolProperty( "Axis", true,
+                                                "Show odometry axis.",
+                                                this, SLOT( updateShowAxis() ));
+
+  use_6dof_property_ = new rviz::BoolProperty( "6DOF", false,
+                                               "Use 6DOF (x, y, z, roll, pitch, yaw) or 3DOF (x, y, yaw).",
+                                               this, SLOT( updateUse6DOF() ));
 }
 
 void OdometryDisplay::onInitialize()
@@ -46,16 +54,44 @@ void OdometryDisplay::reset()
   MFDClass::reset();
 }
 
-void OdometryDisplay::updateColorAndAlphaAndScale()
+void OdometryDisplay::updateColorAndAlpha()
 {
   const float alpha = alpha_property_->getFloat();
-  const float scale = scale_property_->getFloat();
   const Ogre::ColourValue color = color_property_->getOgreColor();
 
   if (visual_)
   {
     visual_->setColor(color.r, color.g, color.b, alpha);
+  }
+}
+
+void OdometryDisplay::updateScale()
+{
+  const float scale = scale_property_->getFloat();
+
+  if (visual_)
+  {
     visual_->setScale(scale);
+  }
+}
+
+void OdometryDisplay::updateShowAxis()
+{
+  const bool show_axis = show_axis_property_->getBool();
+
+  if (visual_)
+  {
+    visual_->setShowAxis(show_axis);
+  }
+}
+
+void OdometryDisplay::updateUse6DOF()
+{
+  const bool use_6dof = use_6dof_property_->getBool();
+
+  if (visual_)
+  {
+    visual_->setUse6DOF(use_6dof);
   }
 }
 
