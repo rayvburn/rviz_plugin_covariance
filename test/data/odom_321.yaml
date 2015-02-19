@@ -2,7 +2,7 @@
 # Odometry messages with three different pose covariance.
 #
 # rostopic pub /base_odometry nav_msgs/Odometry -f \
-#  `rospack find rviz_plugin_covariance`/data/odom_123.yml
+#  `rospack find rviz_plugin_covariance`/test/data/odom_321.yaml
 header:
   stamp: now
   frame_id: "/odom"
@@ -18,9 +18,9 @@ pose:
       y: 0.0
       z: 0.0
       w: 1.0
-  covariance: [1.0, 0.0, 0.0, 0.0, 0.0, 0.0,
+  covariance: [3.0, 0.0, 0.0, 0.0, 0.0, 0.0,
                0.0,  2.0, 0.0, 0.0, 0.0, 0.0,
-               0.0,  0.0, 3.0, 0.0, 0.0, 0.0,
+               0.0,  0.0, 1.0, 0.0, 0.0, 0.0,
                0.0,  0.0, 0.0, 1.0, 0.0, 0.0,
                0.0,  0.0, 0.0, 0.0, 1.0, 0.0,
                0.0,  0.0, 0.0, 0.0, 0.0, 1.0]
