@@ -2,8 +2,8 @@
 Changelog for package rviz_plugin_covariance
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+0.0.2 (2015-02-19)
+------------------
 * Add 3DOF visual
 * Catkinize and update rviz plugin API
 * Merge pull request #4 from flixr/find_eigen
