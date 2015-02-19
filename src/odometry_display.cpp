@@ -35,6 +35,10 @@ OdometryDisplay::OdometryDisplay()
                                                 "Show odometry axis.",
                                                 this, SLOT( updateShowAxis() ));
 
+  show_position_property_ = new rviz::BoolProperty( "Position", true,
+                                                    "Show position.",
+                                                    this, SLOT( updateShowPosition() ));
+
   show_orientation_property_ = new rviz::BoolProperty( "Orientation", true,
                                                        "Show orientation (only for 6DOF).",
                                                        this, SLOT( updateShowOrientation() ));
@@ -46,6 +50,7 @@ OdometryDisplay::OdometryDisplay()
   updateColorAndAlpha();
   updateScale();
   updateShowAxis();
+  updateShowPosition();
   updateShowOrientation();
   updateUse6DOF();
 }
@@ -92,6 +97,16 @@ void OdometryDisplay::updateShowAxis()
   if (visual_)
   {
     visual_->setShowAxis(show_axis);
+  }
+}
+
+void OdometryDisplay::updateShowPosition()
+{
+  const bool show_position = show_position_property_->getBool();
+
+  if (visual_)
+  {
+    visual_->setShowPosition(show_position);
   }
 }
 

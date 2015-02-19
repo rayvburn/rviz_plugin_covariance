@@ -39,6 +39,7 @@ private Q_SLOTS:
   void updateColorAndAlpha();
   void updateScale();
   void updateShowAxis();
+  void updateShowPosition();
   void updateShowOrientation();
   void updateUse6DOF();
 
@@ -52,6 +53,7 @@ private:
   rviz::FloatProperty* scale_property_;
 
   rviz::BoolProperty* show_axis_property_;
+  rviz::BoolProperty* show_position_property_;
   rviz::BoolProperty* show_orientation_property_;
   rviz::BoolProperty* use_6dof_property_;
 };

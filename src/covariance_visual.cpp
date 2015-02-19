@@ -82,10 +82,11 @@ CovarianceVisual::CovarianceVisual(Ogre::SceneManager* scene_manager, Ogre::Scen
   position_node_    = axes_->getSceneNode()->createChildSceneNode();
   orientation_node_ = axes_->getSceneNode()->createChildSceneNode();
 
-  shape_.reset(new rviz::Shape(rviz::Shape::Sphere, scene_manager_, position_node_));
-  orientationShape_.reset(new rviz::Shape(rviz::Shape::Cone, scene_manager_, orientation_node_));
+  position_shape_.reset(new rviz::Shape(rviz::Shape::Sphere, scene_manager_, position_node_));
+  orientation_shape_.reset(new rviz::Shape(rviz::Shape::Cone, scene_manager_, orientation_node_));
 
   axes_->getSceneNode()->setVisible(show_axis_);
+  position_node_->setVisible(show_position_);
   orientation_node_->setVisible(use_6dof_ && show_orientation_);
 }
 
@@ -104,25 +105,22 @@ void CovarianceVisual::setMessage(const geometry_msgs::PoseWithCovariance& msg)
   Ogre::Quaternion orientation(msg.pose.orientation.w, msg.pose.orientation.x, msg.pose.orientation.y, msg.pose.orientation.z);
 
   // Set position and orientation for axes scene node.
-  if (show_axis_)
+  if (!position.isNaN())
   {
-    if (!position.isNaN())
-    {
-      axes_->setPosition(position);
-    }
-    else
-    {
-      ROS_WARN_STREAM_THROTTLE(1, "Position contains NaN: " << position);
-    }
+    axes_->setPosition(position);
+  }
+  else
+  {
+    ROS_WARN_STREAM_THROTTLE(1, "Position contains NaN: " << position);
+  }
 
-    if (!orientation.isNaN())
-    {
-      axes_->setOrientation(orientation);
-    }
-    else
-    {
-      ROS_WARN_STREAM_THROTTLE(1, "Orientation contains NaN: " << orientation);
-    }
+  if (!orientation.isNaN())
+  {
+    axes_->setOrientation(orientation);
+  }
+  else
+  {
+    ROS_WARN_STREAM_THROTTLE(1, "Orientation contains NaN: " << orientation);
   }
 
   if (use_6dof_)
@@ -322,8 +320,8 @@ void CovarianceVisual::setFrameOrientation(const Ogre::Quaternion& orientation)
 
 void CovarianceVisual::setColor(float r, float g, float b, float a)
 {
-  shape_->setColor(r, g, b, a);
-  orientationShape_->setColor(r, g, b, a);
+  position_shape_->setColor(r, g, b, a);
+  orientation_shape_->setColor(r, g, b, a);
 }
 
 void CovarianceVisual::setScale(float scale)
@@ -336,8 +334,15 @@ void CovarianceVisual::setShowAxis(bool show_axis)
   show_axis_ = show_axis;
 
   axes_->getSceneNode()->setVisible(show_axis);
-  position_node_->setVisible(true);
+  position_node_->setVisible(show_position_);
   orientation_node_->setVisible(use_6dof_ && show_orientation_);
+}
+
+void CovarianceVisual::setShowPosition(bool show_position)
+{
+  show_position_ = show_position;
+
+  position_node_->setVisible(show_position_);
 }
 
 void CovarianceVisual::setShowOrientation(bool show_orientation)
