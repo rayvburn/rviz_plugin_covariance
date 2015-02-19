@@ -2,8 +2,8 @@
 Changelog for package rviz_plugin_covariance
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+0.0.3 (2015-02-19)
+------------------
 * Add show position property
 * Add show orientation property
 * Fix show axis
