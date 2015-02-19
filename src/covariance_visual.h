@@ -42,6 +42,8 @@ public:
 
   void setShowAxis(bool show_axis);
 
+  void setShowOrientation(bool show_orientation);
+
   void setUse6DOF(bool use_6dof);
 
 private:
@@ -50,13 +52,14 @@ private:
   boost::shared_ptr<rviz::Shape> orientationShape_;
 
   Ogre::SceneNode* frame_node_;
-  Ogre::SceneNode* positionNode_;
-  Ogre::SceneNode* orientationNode_;
+  Ogre::SceneNode* position_node_;
+  Ogre::SceneNode* orientation_node_;
 
   Ogre::SceneManager* scene_manager_;
 
   float scale_;
   bool show_axis_;
+  bool show_orientation_;
   bool use_6dof_;
 };
 
