@@ -2,6 +2,15 @@
 Changelog for package rviz_plugin_covariance
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Add show position property
+* Add show orientation property
+* Fix show axis
+* Fix orientation for 3DOF
+* Check for eigensolver status
+* Contributors: Enrique Fernandez
+
 0.0.2 (2015-02-19)
 ------------------
 * Add 3DOF visual
