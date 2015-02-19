@@ -334,7 +334,9 @@ void CovarianceVisual::setShowAxis(bool show_axis)
 {
   show_axis_ = show_axis;
 
-  axes_->getSceneNode()->setVisible(show_axis, false);
+  axes_->getSceneNode()->setVisible(show_axis);
+  positionNode_->setVisible(true);
+  orientationNode_->setVisible(use_6dof_);
 }
 
 void CovarianceVisual::setUse6DOF(bool use_6dof)
