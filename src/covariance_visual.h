@@ -38,17 +38,11 @@ public:
 
   void setColor(float r, float g, float b, float a);
 
-  void setScale(float scale)
-  {
-    scaleFactor_ = scale;
-  }
+  void setScale(float scale);
 
   void setShowAxis(bool show_axis);
 
-  void setUse6DOF(bool use_6dof)
-  {
-    use_6dof_ = use_6dof;
-  }
+  void setUse6DOF(bool use_6dof);
 
 private:
   boost::shared_ptr<rviz::Axes> axes_;
@@ -61,7 +55,7 @@ private:
 
   Ogre::SceneManager* scene_manager_;
 
-  float scaleFactor_;
+  float scale_;
   bool show_axis_;
   bool use_6dof_;
 };

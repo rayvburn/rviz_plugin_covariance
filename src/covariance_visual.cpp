@@ -75,7 +75,7 @@ namespace rviz_plugin_covariance
 CovarianceVisual::CovarianceVisual(Ogre::SceneManager* scene_manager, Ogre::SceneNode* parent_node)
   : frame_node_(parent_node->createChildSceneNode())
   , scene_manager_(scene_manager)
-  , scaleFactor_(1.0)
+  , scale_(1.0)
 {
   axes_.reset(new rviz::Axes(scene_manager_, frame_node_));
 
@@ -84,6 +84,8 @@ CovarianceVisual::CovarianceVisual(Ogre::SceneManager* scene_manager, Ogre::Scen
 
   shape_.reset(new rviz::Shape(rviz::Shape::Sphere, scene_manager_, positionNode_));
   orientationShape_.reset(new rviz::Shape(rviz::Shape::Cone, scene_manager_, orientationNode_));
+
+  orientationNode_->setVisible(use_6dof_);
 }
 
 CovarianceVisual::~CovarianceVisual()
@@ -149,13 +151,13 @@ void CovarianceVisual::setMessage(const geometry_msgs::PoseWithCovariance& msg)
         std::sqrt(positionEigenVectorsAndValues.second[0]),
         std::sqrt(positionEigenVectorsAndValues.second[1]),
         std::sqrt(positionEigenVectorsAndValues.second[2]));
-    positionScaling *= scaleFactor_;
+    positionScaling *= scale_;
 
     Ogre::Vector3 orientationScaling(
         std::sqrt(orientationEigenVectorsAndValues.second[0]),
         std::sqrt(orientationEigenVectorsAndValues.second[1]),
         std::sqrt(orientationEigenVectorsAndValues.second[2]));
-    orientationScaling *= scaleFactor_;
+    orientationScaling *= scale_;
 
     // Set the scaling.
     if (!positionScaling.isNaN())
@@ -245,12 +247,12 @@ void CovarianceVisual::setMessage(const geometry_msgs::PoseWithCovariance& msg)
     const double yaw = atan2(eigen_vectors(1, 0), eigen_vectors(0, 0));
     const double axis_major = sqrt(eigen_values[0]);
     const double axis_minor = sqrt(eigen_values[1]);
-    const double axis_yaw   = 2.0 * sqrt(cov_yaw);
+    const double axis_yaw   = sqrt(cov_yaw);
 
     // Compute the ellipsoid orientation
     Ogre::Quaternion positionQuaternion;
     Ogre::Matrix3 R;
-    R.FromEulerAnglesYXZ(Ogre::Radian(0.0), Ogre::Radian(yaw), Ogre::Radian(0.0));
+    R.FromEulerAnglesXYZ(Ogre::Radian(0.0), Ogre::Radian(0.0), Ogre::Radian(yaw));
     positionQuaternion.FromRotationMatrix(R);
 
     // Set the orientation
@@ -261,7 +263,7 @@ void CovarianceVisual::setMessage(const geometry_msgs::PoseWithCovariance& msg)
         std::isnormal(axis_major) ? axis_major : 0.001,
         std::isnormal(axis_minor) ? axis_minor : 0.001,
         std::isnormal(axis_yaw  ) ? axis_yaw   : 0.001);
-    positionScaling *= scaleFactor_;
+    positionScaling *= scale_;
 
     // Set the scaling
     if (!positionScaling.isNaN())
@@ -323,11 +325,23 @@ void CovarianceVisual::setColor(float r, float g, float b, float a)
   orientationShape_->setColor(r, g, b, a);
 }
 
+void CovarianceVisual::setScale(float scale)
+{
+  scale_ = scale;
+}
+
 void CovarianceVisual::setShowAxis(bool show_axis)
 {
   show_axis_ = show_axis;
 
-  axes_->getSceneNode()->setVisible(show_axis);
+  axes_->getSceneNode()->setVisible(show_axis, false);
+}
+
+void CovarianceVisual::setUse6DOF(bool use_6dof)
+{
+  use_6dof_ = use_6dof;
+
+  orientationNode_->setVisible(use_6dof);
 }
 
 } // end namespace rviz_plugin_covariance

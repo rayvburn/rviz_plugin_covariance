@@ -38,6 +38,11 @@ OdometryDisplay::OdometryDisplay()
   use_6dof_property_ = new rviz::BoolProperty( "6DOF", false,
                                                "Use 6DOF (x, y, z, roll, pitch, yaw) or 3DOF (x, y, yaw).",
                                                this, SLOT( updateUse6DOF() ));
+
+  updateColorAndAlpha();
+  updateScale();
+  updateShowAxis();
+  updateUse6DOF();
 }
 
 void OdometryDisplay::onInitialize()
@@ -117,12 +122,8 @@ void OdometryDisplay::processMessage(const nav_msgs::OdometryConstPtr& msg)
   visual_->setFramePosition(position);
   visual_->setFrameOrientation(orientation);
 
-  const float alpha = alpha_property_->getFloat();
-  const float scale = scale_property_->getFloat();
-  const Ogre::ColourValue color = color_property_->getOgreColor();
-
-  visual_->setColor(color.r, color.g, color.b, alpha);
-  visual_->setScale(scale);
+  updateColorAndAlpha();
+  updateScale();
 }
 
 } // end namespace rviz_plugin_covariance
