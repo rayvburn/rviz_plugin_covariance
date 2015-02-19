@@ -43,10 +43,7 @@ public:
     scaleFactor_ = scale;
   }
 
-  void setShowAxis(bool show_axis)
-  {
-    show_axis_ = show_axis;
-  }
+  void setShowAxis(bool show_axis);
 
   void setUse6DOF(bool use_6dof)
   {

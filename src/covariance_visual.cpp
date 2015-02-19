@@ -227,21 +227,30 @@ void CovarianceVisual::setMessage(const geometry_msgs::PoseWithCovariance& msg)
     }
 
     // Compute eigen values and vectors for xy
-    Eigen::SelfAdjointEigenSolver<Eigen::Matrix2d> eig(cov_xy);
+    Eigen::Vector2d eigen_values  = Eigen::Vector2d::Identity();
+    Eigen::Matrix2d eigen_vectors = Eigen::Matrix2d::Zero();
 
-    const Eigen::Vector2d& eig_values(eig.eigenvalues());
-    const Eigen::Matrix2d& eig_vectors(eig.eigenvectors());
+    Eigen::SelfAdjointEigenSolver<Eigen::Matrix2d> eigensolver(cov_xy);
+    if (eigensolver.info() == Eigen::Success)
+    {
+      eigen_values  = eigensolver.eigenvalues();
+      eigen_vectors = eigensolver.eigenvectors();
+    }
+    else
+    {
+      ROS_WARN_THROTTLE(1, "Failed to compute eigen values/vectors. Is the covariance matrix correct?");
+    }
 
     // Compute ellipsoid angle, and axes
-    const double yaw = atan2(eig_vectors(1, 0), eig_vectors(0, 0));
-    const double axis_major = sqrt(eig_values[0]);
-    const double axis_minor = sqrt(eig_values[1]);
+    const double yaw = atan2(eigen_vectors(1, 0), eigen_vectors(0, 0));
+    const double axis_major = sqrt(eigen_values[0]);
+    const double axis_minor = sqrt(eigen_values[1]);
     const double axis_yaw   = 2.0 * sqrt(cov_yaw);
 
     // Compute the ellipsoid orientation
     Ogre::Quaternion positionQuaternion;
     Ogre::Matrix3 R;
-    R.FromEulerAnglesYXZ(Ogre::Radian(0.0), Ogre::Radian(0.0), Ogre::Radian(yaw));
+    R.FromEulerAnglesYXZ(Ogre::Radian(0.0), Ogre::Radian(yaw), Ogre::Radian(0.0));
     positionQuaternion.FromRotationMatrix(R);
 
     // Set the orientation
@@ -275,9 +284,9 @@ void CovarianceVisual::setMessage(const geometry_msgs::PoseWithCovariance& msg)
        << "axis (major, minor, yaw): (" << axis_major << ", " << axis_minor << ", " << axis_yaw << ")\n"
        << "yaw: " << yaw << "\n"
        << "Positional part 2x2 eigen values:\n"
-       << eig_values << "\n"
+       << eigen_values << "\n"
        << "Positional part 2x2 eigen vectors:\n"
-       << eig_vectors << "\n"
+       << eigen_vectors << "\n"
        << "Sphere orientation:\n"
        << positionQuaternion << "\n"
        << positionQuaternion.getRoll() << " "
@@ -312,6 +321,13 @@ void CovarianceVisual::setColor(float r, float g, float b, float a)
 {
   shape_->setColor(r, g, b, a);
   orientationShape_->setColor(r, g, b, a);
+}
+
+void CovarianceVisual::setShowAxis(bool show_axis)
+{
+  show_axis_ = show_axis;
+
+  axes_->getSceneNode()->setVisible(show_axis);
 }
 
 } // end namespace rviz_plugin_covariance
