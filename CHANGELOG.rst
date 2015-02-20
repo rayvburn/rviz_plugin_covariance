@@ -2,6 +2,14 @@
 Changelog for package rviz_plugin_covariance
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Merge branch 'properties_fix' into 'cobalt-devel'
+  Properties Fix
+  Sorry if you think something is duplicated, but it works like this.
+* Fix applying of the properties of the plugin (axes mainly)
+* Contributors: Enrique Fernandez, Sammy Pfeiffer
+
 0.0.3 (2015-02-19)
 ------------------
 * Add show position property
