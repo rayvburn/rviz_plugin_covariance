@@ -2,8 +2,8 @@
 Changelog for package rviz_plugin_covariance
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+0.0.4 (2015-02-20)
+------------------
 * Merge branch 'properties_fix' into 'cobalt-devel'
   Properties Fix
   Sorry if you think something is duplicated, but it works like this.
