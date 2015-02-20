@@ -31,7 +31,7 @@ CovarianceDisplay::CovarianceDisplay()
                                              "Ellipsoid scale factor.",
                                              this, SLOT( updateScale() ));
 
-  show_axis_property_ = new rviz::BoolProperty( "Axis", true,
+  show_axis_property_ = new rviz::BoolProperty( "Axis", false,
                                                 "Show odometry axis.",
                                                 this, SLOT( updateShowAxis() ));
 
@@ -58,11 +58,44 @@ CovarianceDisplay::CovarianceDisplay()
 void CovarianceDisplay::onInitialize()
 {
   MFDClass::onInitialize();
+  ROS_DEBUG_STREAM("onInitialize called in Rviz plugin for covariance!");
+  updateColorAndAlpha();
+  updateScale();
+  updateShowAxis();
+  updateShowPosition();
+  updateShowOrientation();
+  updateUse6DOF();
+}
+
+// should probably be called onUpdateTopic(), called when topic changes
+void CovarianceDisplay::updateTopic()
+{
+    ROS_DEBUG_STREAM("updateTopic called in Rviz plugin for covariance!");
+    updateColorAndAlpha();
+    updateScale();
+    updateShowAxis();
+    updateShowPosition();
+    updateShowOrientation();
+    updateUse6DOF();
+    MFDClass::updateTopic();
 }
 
 CovarianceDisplay::~CovarianceDisplay ()
 {
 }
+
+void CovarianceDisplay::onEnable()
+{
+  MFDClass::subscribe();
+  ROS_DEBUG_STREAM("onEnable called in Rviz plugin for covariance!");
+  updateColorAndAlpha();
+  updateScale();
+  updateShowAxis();
+  updateShowPosition();
+  updateShowOrientation();
+  updateUse6DOF();
+}
+
 
 void CovarianceDisplay::reset()
 {
@@ -154,6 +187,11 @@ void CovarianceDisplay::processMessage(const geometry_msgs::PoseWithCovarianceSt
 
   updateColorAndAlpha();
   updateScale();
+  // Everything must be updated, it seems
+  updateShowAxis();
+  updateShowPosition();
+  updateShowOrientation();
+  updateUse6DOF();
 }
 
 } // end namespace rviz_plugin_covariance

@@ -31,7 +31,7 @@ OdometryDisplay::OdometryDisplay()
                                              "Ellipsoid scale factor.",
                                              this, SLOT( updateScale() ));
 
-  show_axis_property_ = new rviz::BoolProperty( "Axis", true,
+  show_axis_property_ = new rviz::BoolProperty( "Axis", false,
                                                 "Show odometry axis.",
                                                 this, SLOT( updateShowAxis() ));
 
@@ -58,10 +58,51 @@ OdometryDisplay::OdometryDisplay()
 void OdometryDisplay::onInitialize()
 {
   MFDClass::onInitialize();
+  ROS_DEBUG_STREAM("onInitialize called in Rviz plugin for odom covariance!");
+  updateColorAndAlpha();
+  updateScale();
+  updateShowAxis();
+  updateShowPosition();
+  updateShowOrientation();
+  updateUse6DOF();
 }
+
+// should probably be called onUpdateTopic(), called when topic changes
+void OdometryDisplay::updateTopic()
+{
+    ROS_DEBUG_STREAM("updateTopic called in Rviz plugin for odom covariance!");
+    updateColorAndAlpha();
+    updateScale();
+    updateShowAxis();
+    updateShowPosition();
+    updateShowOrientation();
+    updateUse6DOF();
+    MFDClass::updateTopic();
+}
+
 
 OdometryDisplay::~OdometryDisplay()
 {
+    ROS_DEBUG_STREAM("updateTopic called in Rviz plugin for odom covariance!");
+    updateColorAndAlpha();
+    updateScale();
+    updateShowAxis();
+    updateShowPosition();
+    updateShowOrientation();
+    updateUse6DOF();
+    MFDClass::updateTopic();
+}
+
+void OdometryDisplay::onEnable()
+{
+  MFDClass::subscribe();
+  ROS_DEBUG_STREAM("onEnable called in Rviz plugin for odom covariance!");
+  updateColorAndAlpha();
+  updateScale();
+  updateShowAxis();
+  updateShowPosition();
+  updateShowOrientation();
+  updateUse6DOF();
 }
 
 void OdometryDisplay::reset()
@@ -154,6 +195,11 @@ void OdometryDisplay::processMessage(const nav_msgs::OdometryConstPtr& msg)
 
   updateColorAndAlpha();
   updateScale();
+  // Everything must be updated, it seems
+  updateShowAxis();
+  updateShowPosition();
+  updateShowOrientation();
+  updateUse6DOF();
 }
 
 } // end namespace rviz_plugin_covariance

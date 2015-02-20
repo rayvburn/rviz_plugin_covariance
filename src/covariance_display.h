@@ -34,6 +34,9 @@ public:
 protected:
   virtual void onInitialize();
   virtual void reset();
+  //virtual void onEnableChanged();
+  virtual void onEnable();
+  virtual void updateTopic();
 
 private Q_SLOTS:
   void updateColorAndAlpha();
