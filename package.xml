@@ -4,7 +4,7 @@
     Plugin providing covariance display.
     Supports both geometry_msgs/PoseWithCovarianceStamped and nav_msgs/Odometry messages.
   </description>
-  <version>0.0.4</version>
+  <version>0.0.5</version>
   <maintainer email="enrique.fernandez@pal-robotics.com">Enrique Fernandez</maintainer>
   <author>Thomas Moulard</author>
   <license>BSD</license>

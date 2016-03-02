@@ -2,8 +2,8 @@
 Changelog for package rviz_plugin_covariance
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+0.0.5 (2016-03-02)
+------------------
 * cmake_modules
 * Contributors: Jeremie Deray
 
