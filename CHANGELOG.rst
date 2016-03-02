@@ -2,6 +2,11 @@
 Changelog for package rviz_plugin_covariance
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* cmake_modules
+* Contributors: Jeremie Deray
+
 0.0.4 (2015-02-20)
 ------------------
 * Merge branch 'properties_fix' into 'cobalt-devel'
