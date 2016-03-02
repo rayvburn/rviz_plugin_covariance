@@ -6,7 +6,8 @@ find_package(catkin REQUIRED
     roscpp
     geometry_msgs
     nav_msgs
-    rviz)
+    rviz
+    cmake_modules)
 
 find_package(Eigen REQUIRED)
 
