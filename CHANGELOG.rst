@@ -2,8 +2,8 @@
 Changelog for package rviz_plugin_covariance
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+0.0.6 (2018-01-09)
+------------------
 * Merge branch 'qt5-compatibility' into 'cobalt-devel'
   Make it qt5 compatible
   See merge request navigation/rviz_plugin_covariance!3
