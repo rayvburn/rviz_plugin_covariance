@@ -2,6 +2,14 @@
 Changelog for package rviz_plugin_covariance
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Merge branch 'qt5-compatibility' into 'cobalt-devel'
+  Make it qt5 compatible
+  See merge request navigation/rviz_plugin_covariance!3
+* Make it qt5 compatible
+* Contributors: Jeremie Deray, Victor Lopez
+
 0.0.5 (2016-03-02)
 ------------------
 * cmake_modules
