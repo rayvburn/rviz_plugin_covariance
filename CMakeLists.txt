@@ -16,19 +16,25 @@ catkin_package()
 include_directories(${catkin_INCLUDE_DIRS} ${EIGEN_INCLUDE_DIR})
 link_directories(${catkin_LIBRARY_DIRS})
 
-find_package(Qt4 COMPONENTS QtCore QtGui REQUIRED)
-include(${QT_USE_FILE})
+## This setting causes Qt's "MOC" generation to happen automatically.
+set(CMAKE_AUTOMOC ON)
+set(CMAKE_AUTOUIC ON)
+if(rviz_QT_VERSION VERSION_LESS "5")
+    message(STATUS "Using Qt4 based on the rviz_QT_VERSION: ${rviz_QT_VERSION}")
+    find_package(Qt4 COMPONENTS QtCore QtGui REQUIRED)
+    include(${QT_USE_FILE})
+else()
+    message(STATUS "Using Qt5 based on the rviz_QT_VERSION: ${rviz_QT_VERSION}")
+    find_package(Qt5 ${rviz_QT_VERSION} EXACT REQUIRED Core Widgets)
+    ## make target_link_libraries(${QT_LIBRARIES}) pull in all required dependencies
+    set(QT_LIBRARIES Qt5::Widgets)
+endif()
 add_definitions(-DQT_NO_KEYWORDS)
-
-qt4_wrap_cpp(MOC_FILES
-  src/covariance_display.h
-  src/odometry_display.h)
 
 set(SOURCE_FILES
   src/covariance_visual.cpp
   src/covariance_display.cpp
-  src/odometry_display.cpp
-  ${MOC_FILES})
+  src/odometry_display.cpp)
 
 add_library(${PROJECT_NAME} ${SOURCE_FILES})
 target_link_libraries(${PROJECT_NAME} ${QT_LIBRARIES} ${catkin_LIBRARIES})
