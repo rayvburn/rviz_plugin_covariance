@@ -10,6 +10,7 @@
 #include <Eigen/Dense>
 
 #include "covariance_visual.h"
+#include <cmath>
 
 template<typename Derived>
 inline bool isfinite(const Eigen::MatrixBase<Derived>& x)
@@ -128,7 +129,7 @@ void CovarianceVisual::setMessage(const geometry_msgs::PoseWithCovariance& msg)
     // Check for NaN in covariance
     for (size_t i = 0; i < 3; ++i)
     {
-      if (isnan(msg.covariance[i]))
+      if (std::isnan(msg.covariance[i]))
       {
         ROS_WARN_THROTTLE(1, "Covariance contains NaN");
         return;
@@ -220,7 +221,7 @@ void CovarianceVisual::setMessage(const geometry_msgs::PoseWithCovariance& msg)
     const double cov_yaw = msg.covariance[35];
 
     // Check for NaN in covariance
-    if (isnan(cov_xy) || isnan(cov_yaw))
+    if (isnan(cov_xy) || std::isnan(cov_yaw))
     {
       ROS_WARN_STREAM_THROTTLE(1, "Covariance contains NaN: " <<
           "C_xy = " << cov_xy << ", C_yaw = " << cov_yaw);
